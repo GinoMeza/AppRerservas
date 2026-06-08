@@ -10,9 +10,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+import androidx.compose.ui.platform.LocalContext
+import com.example.sistemainventario.data.UserRepository
+import com.example.sistemainventario.model.User
+
 @Composable
-fun LoginScreen(onLoginSuccess: () -> Unit) {
-    var username by remember { mutableStateOf("") }
+fun LoginScreen(onLoginSuccess: (User) -> Unit) {
+    val context = LocalContext.current
+    val userRepository = remember { UserRepository(context) }
+    var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("") }
 
@@ -31,9 +37,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         )
 
         OutlinedTextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Usuario") },
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("Email (admin@gmail.com)") },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
@@ -43,7 +49,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("Contraseña") },
+            label = { Text("Contraseña (admin123)") },
             modifier = Modifier.fillMaxWidth(),
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true
@@ -61,8 +67,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
 
         Button(
             onClick = {
-                if (username == "admin" && password == "admin123") {
-                    onLoginSuccess()
+                val user = userRepository.login(email, password)
+                if (user != null) {
+                    onLoginSuccess(user)
                 } else {
                     errorMessage = "Usuario o contraseña incorrectos"
                 }

@@ -10,7 +10,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.example.sistemainventario.ui.theme.SistemaInventarioTheme
 import com.example.sistemainventario.ui.login.LoginScreen
-import com.example.sistemainventario.ui.inventory.InventoryScreen
+import com.example.sistemainventario.ui.dashboard.DashboardScreen
+import com.example.sistemainventario.model.User
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,12 +19,15 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             SistemaInventarioTheme {
-                var isLoggedIn by rememberSaveable { mutableStateOf(false) }
+                var currentUser by rememberSaveable { mutableStateOf<User?>(null) }
 
-                if (!isLoggedIn) {
-                    LoginScreen(onLoginSuccess = { isLoggedIn = true })
+                if (currentUser == null) {
+                    LoginScreen(onLoginSuccess = { user -> currentUser = user })
                 } else {
-                    InventoryScreen()
+                    DashboardScreen(
+                        user = currentUser!!,
+                        onLogout = { currentUser = null }
+                    )
                 }
             }
         }
